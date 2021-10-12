@@ -16,7 +16,7 @@ namespace Mongo
                 builder.AddConsole();
             });
 
-            serviceCollection.AddSingleton(context.Configuration.GetSection("Mongo").Get<MongoUrl>());
+            serviceCollection.AddSingleton(new MongoUrl(context.Configuration.GetSection("Mongo").Get<string>()));
             serviceCollection.AddSingleton(x =>
             {
                 var settings = MongoClientSettings.FromUrl(x.GetService<MongoUrl>());
@@ -34,6 +34,7 @@ namespace Mongo
                 return x.GetService<IMongoClient>()!.GetDatabase(databaseName);
             });
 
+            serviceCollection.AddHostedService<MongoInitService>();
             serviceCollection.AddHostedService<UserInterfaceService>();
         }
     }

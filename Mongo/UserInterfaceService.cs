@@ -27,7 +27,7 @@ namespace Mongo
                         break;
                     default:
                         _hostApplicationLifetime.StopApplication();
-                        break;
+                        return;
                 }
             }
         }
