@@ -19,7 +19,8 @@ namespace Mongo
 				cm.MapProperty(x => x.Author)
 					.SetElementName("author")
 					.SetDefaultValue(BookModel.DefaultAuthor)
-					.SetIgnoreIfDefault(true);
+					.SetIgnoreIfDefault(true)
+					.SetSerializer(new AuthorStringSerializer());
 				cm.MapProperty(x => x.ReleaseDate)
 					.SetElementName("releaseDate")
 					.SetSerializer(new DateTimeSerializer(true));
