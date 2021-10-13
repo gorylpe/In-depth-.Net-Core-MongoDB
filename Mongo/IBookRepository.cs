@@ -6,8 +6,10 @@ namespace Mongo
 {
 	public interface IBookRepository
 	{
-		Task<bool>            AddBook(BookModel bookModel);
+		Task<bool>            AddBookAsync(BookModel bookModel);
+		Task<bool>            AddBooksAsync(List<BookModel> bookModels);
 		Task<List<BookModel>> GetBooksAsync();
+		Task<List<BookModel>> GetBooksByAuthorAsync(string author);
 		Task<bool>            RemoveBookAsync(ObjectId id);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,12 @@ namespace Mongo
 					case "remove":
 						await RemoveBook();
 						break;
+					case "adds":
+						await AddBooks();
+						break;
+					case "getba":
+						await GetBooksByAuthor();
+						break;
 					case "exit":
 						_hostApplicationLifetime.StopApplication();
 						return;
@@ -47,6 +54,40 @@ namespace Mongo
 						continue;
 				}
 			}
+		}
+
+		private async Task GetBooksByAuthor()
+		{
+			Console.Write("Author: ");
+			var author = Console.ReadLine();
+			var books = await _bookRepository.GetBooksByAuthorAsync(author);
+			Console.WriteLine(string.Join(", ", books));
+		}
+
+		private async Task AddBooks()
+		{
+			Console.Write("Author: ");
+			var author = Console.ReadLine();
+			Console.Write("Number of books: ");
+			var num = int.Parse(Console.ReadLine()!);
+			var books = new List<BookModel>();
+			for (var i = 0; i < num; i++)
+			{
+				Console.WriteLine($"Adding book {i + 1}/{num}");
+				Console.Write("Title: ");
+				var title = Console.ReadLine();
+				Console.Write("Year: ");
+				var year = int.Parse(Console.ReadLine()!);
+				books.Add(new BookModel
+				{
+					Author = author,
+					Title = title,
+					ReleaseDate = new DateTime(year, 1, 1)
+				});
+			}
+
+			var booksAdded = await _bookRepository.AddBooksAsync(books);
+			Console.WriteLine($"Books {(booksAdded ? "" : "not ")} added");
 		}
 
 		private async Task RemoveBook()
@@ -79,7 +120,7 @@ namespace Mongo
 				Author = author,
 				ReleaseDate = new DateTime(int.Parse(year!), 1, 1)
 			};
-			var added = await _bookRepository.AddBook(book);
+			var added = await _bookRepository.AddBookAsync(book);
 			Console.WriteLine($"Book{(added ? "" : " not")} added");
 		}
 	}

@@ -17,7 +17,7 @@ namespace Mongo
 			_collection = database.GetCollection<BookModel>(CollectionName);
 		}
 
-		public async Task<bool> AddBook(BookModel bookModel)
+		public async Task<bool> AddBookAsync(BookModel bookModel)
 		{
 			try
 			{
@@ -30,9 +30,28 @@ namespace Mongo
 			}
 		}
 
+		public async Task<bool> AddBooksAsync(List<BookModel> bookModels)
+		{
+			try
+			{
+				await _collection.InsertManyAsync(bookModels);
+				return true;
+			}
+			catch (MongoWriteException)
+			{
+				return false;
+			}
+		}
+
 		public async Task<List<BookModel>> GetBooksAsync()
 		{
 			var filter = Builders<BookModel>.Filter.Empty;
+			return await _collection.Find(filter).ToListAsync();
+		}
+
+		public async Task<List<BookModel>> GetBooksByAuthorAsync(string author)
+		{
+			var filter = Builders<BookModel>.Filter.Eq(x => x.Author, author);
 			return await _collection.Find(filter).ToListAsync();
 		}
 
