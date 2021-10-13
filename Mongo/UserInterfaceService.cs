@@ -4,17 +4,20 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 
 namespace Mongo
 {
 	public class UserInterfaceService : BackgroundService
 	{
-		private readonly IHostApplicationLifetime _hostApplicationLifetime;
-		private readonly IBookRepository          _bookRepository;
+		private readonly ILogger<UserInterfaceService> _logger;
+		private readonly IHostApplicationLifetime      _hostApplicationLifetime;
+		private readonly IBookRepository               _bookRepository;
 
-		public UserInterfaceService(IHostApplicationLifetime hostApplicationLifetime, IBookRepository bookRepository)
+		public UserInterfaceService(ILogger<UserInterfaceService> logger, IHostApplicationLifetime hostApplicationLifetime, IBookRepository bookRepository)
 		{
+			_logger = logger;
 			_hostApplicationLifetime = hostApplicationLifetime;
 			_bookRepository = bookRepository;
 		}
@@ -24,37 +27,44 @@ namespace Mongo
 			await Task.Delay(1000);
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				await Task.Yield();
-				Console.Write("Command: ");
-				var command = Console.ReadLine();
-				switch (command)
+				try
 				{
-					case "hello":
-						Console.WriteLine("Hello World!");
-						break;
-					case "add":
-						await AddBook();
-						break;
-					case "get":
-						await GetBooks();
-						break;
-					case "remove":
-						await RemoveBook();
-						break;
-					case "adds":
-						await AddBooks();
-						break;
-					case "getba":
-						await GetBooksByAuthor();
-						break;
-					case "getnt":
-						await GetBooksNewerThan();
-						break;
-					case "exit":
-						_hostApplicationLifetime.StopApplication();
-						return;
-					default:
-						continue;
+					await Task.Yield();
+					Console.Write("Command: ");
+					var command = Console.ReadLine();
+					switch (command)
+					{
+						case "hello":
+							Console.WriteLine("Hello World!");
+							break;
+						case "add":
+							await AddBook();
+							break;
+						case "get":
+							await GetBooks();
+							break;
+						case "remove":
+							await RemoveBook();
+							break;
+						case "adds":
+							await AddBooks();
+							break;
+						case "getba":
+							await GetBooksByAuthor();
+							break;
+						case "getnt":
+							await GetBooksNewerThan();
+							break;
+						case "exit":
+							_hostApplicationLifetime.StopApplication();
+							return;
+						default:
+							continue;
+					}
+				}
+				catch (Exception e)
+				{
+					_logger.LogError(e.Message);
 				}
 			}
 		}
@@ -62,7 +72,7 @@ namespace Mongo
 		private async Task GetBooksNewerThan()
 		{
 			Console.Write("Year: ");
-			var year = int.Parse(Console.ReadLine()!);			
+			var year = int.Parse(Console.ReadLine()!);
 			var books = await _bookRepository.GetBooksNewerThanAsync(new DateTime(year, 1, 1));
 			Console.WriteLine(string.Join("\n", books));
 		}

@@ -63,7 +63,7 @@ namespace Mongo
 
 		public async Task<bool> RemoveBookAsync(ObjectId id)
 		{
-			var filter = Builders<BookModel>.Filter.Eq(x => x.Id, id);
+			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, id);
 			var result = await _collection.DeleteOneAsync(filter);
 			return result.DeletedCount > 0;
 		}
