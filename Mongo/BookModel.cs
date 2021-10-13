@@ -9,7 +9,9 @@ namespace Mongo
 		[BsonId]               public ObjectId Idek  { get; set; }
 		[BsonElement("title")] public string   Title { get; set; }
 
+		[BsonDefaultValue("Unknown")]
 		[BsonIgnoreIfNull]
+		[BsonIgnoreIfDefault]
 		[BsonElement("author")]
 		public string Author { get; set; }
 
