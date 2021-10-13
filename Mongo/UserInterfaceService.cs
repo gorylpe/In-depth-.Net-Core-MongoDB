@@ -40,6 +40,9 @@ namespace Mongo
 						case "add":
 							await AddBook();
 							break;
+						case "addu":
+							await AddBookWithoutAuthor();
+							break;
 						case "get":
 							await GetBooks();
 							break;
@@ -67,6 +70,21 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task AddBookWithoutAuthor()
+		{
+			Console.Write("Title: ");
+			var title = Console.ReadLine();
+			Console.Write("Year: ");
+			var year = Console.ReadLine();
+			var book = new BookModel
+			{
+				Title = title,
+				ReleaseDate = new DateTime(int.Parse(year!), 1, 1)
+			};
+			var added = await _bookRepository.AddBookAsync(book);
+			Console.WriteLine($"Book{(added ? "" : " not")} added");
 		}
 
 		private async Task GetBooksNewerThan()
