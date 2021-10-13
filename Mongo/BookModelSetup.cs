@@ -23,6 +23,8 @@ namespace Mongo
 				cm.MapProperty(x => x.ReleaseDate)
 					.SetElementName("releaseDate")
 					.SetSerializer(new DateTimeSerializer(true));
+
+				cm.SetIgnoreExtraElements(true);
 			});
 		}
 	}
