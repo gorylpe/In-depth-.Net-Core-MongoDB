@@ -6,10 +6,10 @@ namespace Mongo
 {
 	public class BookModel
 	{
-		[BsonId] public ObjectId Idek        { get; set; }
-		public          string   Title       { get; set; }
-		public          string   Author      { get; set; }
-		public          DateTime ReleaseDate { get; set; }
+		[BsonId]                     public ObjectId Idek        { get; set; }
+		[BsonElement("title")]       public string   Title       { get; set; }
+		[BsonElement("author")]      public string   Author      { get; set; }
+		[BsonElement("releaseDate")] public DateTime ReleaseDate { get; set; }
 
 		public override string ToString() => $"{Idek.ToString()} - {Title} - {Author} - {ReleaseDate.Year}";
 	}
