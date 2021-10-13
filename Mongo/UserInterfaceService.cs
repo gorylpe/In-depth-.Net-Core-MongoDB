@@ -47,6 +47,9 @@ namespace Mongo
 					case "getba":
 						await GetBooksByAuthor();
 						break;
+					case "getnt":
+						await GetBooksNewerThan();
+						break;
 					case "exit":
 						_hostApplicationLifetime.StopApplication();
 						return;
@@ -56,12 +59,20 @@ namespace Mongo
 			}
 		}
 
+		private async Task GetBooksNewerThan()
+		{
+			Console.Write("Year: ");
+			var year = int.Parse(Console.ReadLine()!);			
+			var books = await _bookRepository.GetBooksNewerThanAsync(new DateTime(year, 1, 1));
+			Console.WriteLine(string.Join("\n", books));
+		}
+
 		private async Task GetBooksByAuthor()
 		{
 			Console.Write("Author: ");
 			var author = Console.ReadLine();
 			var books = await _bookRepository.GetBooksByAuthorAsync(author);
-			Console.WriteLine(string.Join(", ", books));
+			Console.WriteLine(string.Join("\n", books));
 		}
 
 		private async Task AddBooks()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 
@@ -10,6 +11,8 @@ namespace Mongo
 		Task<bool>            AddBooksAsync(List<BookModel> bookModels);
 		Task<List<BookModel>> GetBooksAsync();
 		Task<List<BookModel>> GetBooksByAuthorAsync(string author);
+		Task<List<BookModel>> GetBooksNewerThanAsync(DateTime date);
 		Task<bool>            RemoveBookAsync(ObjectId id);
+		Task<bool>            RemoveBooksAsync(List<ObjectId> ids);
 	}
 }

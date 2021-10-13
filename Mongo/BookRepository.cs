@@ -55,11 +55,22 @@ namespace Mongo
 			return await _collection.Find(filter).ToListAsync();
 		}
 
+		public async Task<List<BookModel>> GetBooksNewerThanAsync(DateTime date)
+		{
+			var filter = Builders<BookModel>.Filter.Gt(x => x.ReleaseDate, date);
+			return await _collection.Find(filter).ToListAsync();
+		}
+
 		public async Task<bool> RemoveBookAsync(ObjectId id)
 		{
 			var filter = Builders<BookModel>.Filter.Eq(x => x.Id, id);
 			var result = await _collection.DeleteOneAsync(filter);
 			return result.DeletedCount > 0;
+		}
+
+		public Task<bool> RemoveBooksAsync(List<ObjectId> ids)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
