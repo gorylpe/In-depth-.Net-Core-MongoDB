@@ -15,7 +15,9 @@ namespace Mongo
 		[BsonElement("author")]
 		public string Author { get; set; }
 
-		[BsonElement("releaseDate")] public DateTime ReleaseDate { get; set; }
+		[BsonDateTimeOptions(DateOnly = true)]
+		[BsonElement("releaseDate")]
+		public DateTime ReleaseDate { get; set; }
 
 		public override string ToString() => $"{Idek.ToString()} - {Title} - {Author} - {ReleaseDate.Year}";
 	}
