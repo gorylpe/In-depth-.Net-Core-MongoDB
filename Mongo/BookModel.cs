@@ -1,24 +1,16 @@
 ﻿using System;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Mongo
 {
 	public class BookModel
 	{
-		[BsonId]               public ObjectId Idek  { get; set; }
-		[BsonElement("title")] public string   Title { get; set; }
+		public const string DefaultAuthor = "Unknown";
 
-		[BsonDefaultValue("Unknown")]
-		[BsonIgnoreIfNull]
-		[BsonIgnoreIfDefault]
-		[BsonElement("author")]
-		public string Author { get; set; }
-
-		[BsonDateTimeOptions(DateOnly = true)]
-		[BsonElement("releaseDate")]
+		public string   Idek        { get; set; }
+		public string   Title       { get; set; }
+		public string   Author      { get; set; } = DefaultAuthor;
 		public DateTime ReleaseDate { get; set; }
 
-		public override string ToString() => $"{Idek.ToString()} - {Title} - {Author} - {ReleaseDate.Year}";
+		public override string ToString() => $"{Idek} - {Title} - {Author} - {ReleaseDate.Year}";
 	}
 }

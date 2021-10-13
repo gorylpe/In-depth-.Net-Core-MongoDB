@@ -38,6 +38,8 @@ namespace Mongo
 
 			serviceCollection.AddHostedService<MongoInitService>();
 			serviceCollection.AddHostedService<UserInterfaceService>();
+			
+			BookModelSetup.Setup();
 		}
 	}
 }
