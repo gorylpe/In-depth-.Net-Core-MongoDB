@@ -112,5 +112,25 @@ namespace Mongo
 				.SingleOrDefaultAsync();
 			return countResult?.Count ?? 0;
 		}
+
+		public async Task<long> CountBooksNewerThanAsync(DateTime dateTime)
+		{
+			var countResult = await _collection
+				.Aggregate()
+				.Match(Builders<BookModel>.Filter.Gt(x => x.ReleaseDate, dateTime))
+				.Count()
+				.SingleOrDefaultAsync();
+			return countResult?.Count ?? 0;
+		}
+
+		public async Task<long> CountBooksWithAtLeastOneReviewAsync()
+		{
+			var countResult = await _collection
+				.Aggregate()
+				.Match(Builders<BookModel>.Filter.SizeGt(x => x.Reviews, 0))
+				.Count()
+				.SingleOrDefaultAsync();
+			return countResult?.Count ?? 0;
+		}
 	}
 }

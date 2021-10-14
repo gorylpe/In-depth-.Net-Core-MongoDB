@@ -116,6 +116,15 @@ namespace Mongo
 					new ExpertReview(60, "Trudny język"),
 					new SimpleReview(56),
 				}
+			),
+			new BookModel
+			(
+				"61687e723f606416e0448e63",
+				"Moja przygoda",
+				"Ja",
+				new DateTime(2021, 1, 1),
+				BookType.Drama,
+				new List<IReview>()
 			)
 		};
 	}

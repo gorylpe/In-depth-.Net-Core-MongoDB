@@ -20,5 +20,7 @@ namespace Mongo
 		Task<bool>            AddReviewToBook(ObjectId id, IReview review);
 		Task                  RemoveAllBooks();
 		Task<long>            CountBooksAsync();
+		Task<long>            CountBooksNewerThanAsync(DateTime dateTime);
+		Task<long>            CountBooksWithAtLeastOneReviewAsync();
 	}
 }

@@ -84,6 +84,12 @@ namespace Mongo
 						case "count":
 							await CountBooks();
 							break;
+						case "countnewer":
+							await CountBooksWithReleaseDateGreaterThan();
+							break;
+						case "countreview":
+							await CountBooksWithAtLeastOneReviewAsync();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -96,6 +102,20 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task CountBooksWithAtLeastOneReviewAsync()
+		{
+			var count = await _bookRepository.CountBooksWithAtLeastOneReviewAsync();
+			Console.WriteLine($"Books count {count}");
+		}
+
+		private async Task CountBooksWithReleaseDateGreaterThan()
+		{
+			Console.Write("Year: ");
+			var year = int.Parse(Console.ReadLine()!);
+			var count = await _bookRepository.CountBooksNewerThanAsync(new DateTime(year, 1, 1));
+			Console.WriteLine($"Books count {count}");
 		}
 
 		private async Task ResetToDefault()
