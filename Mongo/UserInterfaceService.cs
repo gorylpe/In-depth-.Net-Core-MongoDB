@@ -107,6 +107,9 @@ namespace Mongo
 						case "facetbucket":
 							await GetBooksCountInCenturiesAndDecades();
 							break;
+						case "averageexpert":
+							await AverageOverallOfExpertReviewsByAuthor();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -119,6 +122,13 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task AverageOverallOfExpertReviewsByAuthor()
+		{
+			var averages = await _bookRepository.AverageOverallOfExpertReviewsByAuthorAsync();
+			var averagesStr = string.Join(Environment.NewLine, averages.Select(x => $"\t{x}"));
+			Console.WriteLine(averagesStr);
 		}
 
 		private async Task GetBooksCountInCenturiesAndDecades()

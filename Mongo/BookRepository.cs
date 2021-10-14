@@ -250,12 +250,23 @@ namespace Mongo
 			
 			return (centuries, decades);
 		}
+		
+		private static IReadOnlyList<T> FacetOutput<T>(T _, AggregateFacetResult result) => result.Output<T>();
 
-		private PipelineDefinition<TInput, TOutput> CreatePipelineDefinition<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage)
+		public async Task<List<AuthorAverageOverallOfExpertReviews>> AverageOverallOfExpertReviewsByAuthorAsync()
 		{
-			return PipelineDefinition<TInput, TOutput>.Create(new[] {stage});
+			var result = await _collection.Aggregate()
+			    .Unwind<BookModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
+			    .Match(Builders<BookAuthorUnwindReviewModel>.Filter.OfType<IReview, ExpertReview>(x => x.Reviews))
+			    .Group(x => x.Author, grouping => new AuthorAverageOverallOfExpertReviews
+			    {
+			        Author = grouping.Key,
+			        Average = grouping.Average(x => ((ExpertReview) x.Reviews).Overall)
+			    })
+			    .ToListAsync();
+
+			return result;
 		}
 
-		private static IReadOnlyList<T> FacetOutput<T>(T _, AggregateFacetResult result) => result.Output<T>();
 	}
 }
