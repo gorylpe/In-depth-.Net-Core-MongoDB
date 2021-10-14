@@ -27,6 +27,8 @@ namespace Mongo
 				cm.MapProperty(x => x.Type)
 					.SetElementName("type")
 					.SetSerializer(new EnumSerializer<BookType>(BsonType.String));
+				cm.MapProperty(x => x.Reviews)
+					.SetElementName("reviews");
 
 				cm.SetIgnoreExtraElements(true);
 			});
