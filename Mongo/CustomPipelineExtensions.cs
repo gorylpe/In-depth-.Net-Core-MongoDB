@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 
 namespace Mongo
 {
@@ -30,6 +31,26 @@ namespace Mongo
 		public static string RenderDiscriminator(this Type type)
 		{
 			return BsonClassMap.LookupClassMap(type).Discriminator;
+		}
+
+		public class Renderer<T>
+		{
+			public static Renderer<T> Instance => null;
+		}
+
+		public static string RenderField<T>(this Renderer<T> _, Expression<Func<T, object>> field) => RenderField(field);
+
+		public static string RenderDiscriminatorField<T, TField>(this Renderer<T> _, Expression<Func<T, ICollection<TField>>> field)
+		{
+			return BsonSerializer.LookupDiscriminatorConvention(typeof(TField)).ElementName;
+		}
+		
+		public static IAggregateFluent<TProjection> Project<TSource, TProjection>(this IAggregateFluent<TSource> aggregation,
+			Func<Renderer<TSource>, Renderer<TProjection>, string> render)
+		{
+			var source = Renderer<TSource>.Instance;
+			var projection = Renderer<TProjection>.Instance;
+			return aggregation.Project((ProjectionDefinition<TSource, TProjection>) render.Invoke(source, projection));
 		}
 	}
 }

@@ -258,20 +258,19 @@ namespace Mongo
 		{
 			var result = await _collection
 				.Aggregate()
-				.Project(
-					(ProjectionDefinition<BookModel, BookAuthorFilteredReviewModel>)
+				.Project<BookModel, BookAuthorFilteredReviewModel>((s, p) =>
 					$@"{{
-				    '{CPE.RenderField<BookAuthorFilteredReviewModel>(x => x.Author)}' : '${CPE.RenderField<BookModel>(x => x.Author)}',
-				    '{CPE.RenderField<BookAuthorFilteredReviewModel>(x => x.Reviews)}' : {{
-				        '$filter' : {{
-				            'input' : '${CPE.RenderField<BookModel>(x => x.Reviews)}',
-				            'as' : 'item',
-				            'cond' : {{
-				                '$eq' : ['$$item.{CPE.RenderDiscriminatorField((BookModel x) => x.Reviews)}', '{typeof(ExpertReview).RenderDiscriminator()}']
-				            }}
-				        }}
-				    }}
-				}}")
+                    '{p.RenderField(x => x.Author)}' : '${s.RenderField(x => x.Author)}',
+                    '{p.RenderField(x => x.Reviews)}' : {{
+                        '$filter' : {{
+                            'input' : '${s.RenderField(x => x.Reviews)}',
+                            'as' : 'item',
+                            'cond' : {{
+                                '$eq' : ['$$item.{s.RenderDiscriminatorField(x => x.Reviews)}', '{typeof(ExpertReview).RenderDiscriminator()}']
+                            }}
+                        }}
+                    }}
+                }}")
 				.Unwind<BookAuthorFilteredReviewModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
 				.Group(x => x.Author, grouping => new AuthorAverageOverallOfExpertReviews
 				{
