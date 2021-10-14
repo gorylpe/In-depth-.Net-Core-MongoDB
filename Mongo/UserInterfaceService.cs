@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -103,6 +104,9 @@ namespace Mongo
 						case "titlesreviews":
 							await GetTitlesAndReviewsCount();
 							break;
+						case "facetbucket":
+							await GetBooksCountInCenturiesAndDecades();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -115,6 +119,17 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task GetBooksCountInCenturiesAndDecades()
+		{
+			var (centuries, decades) = await _bookRepository.GetBooksCountInCenturiesAndDecadesAsync();
+			Console.WriteLine("Centuries:");
+			var centuriesStr = string.Join(Environment.NewLine, centuries.Select(x => $"\t{x}"));
+			Console.WriteLine(centuriesStr);
+			Console.WriteLine("Decades:");
+			var decadesStr = string.Join(Environment.NewLine, decades.Select(x => $"\t{x}"));
+			Console.WriteLine(decadesStr);
 		}
 
 		private async Task GetTitlesAndReviewsCount()

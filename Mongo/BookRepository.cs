@@ -189,5 +189,36 @@ namespace Mongo
 				.ToListAsync();
 			return result;
 		}
+		
+		public async Task<(List<BookCountByDateStart> Centuries, List<BookCountByDateStart> Decades)> GetBooksCountInCenturiesAndDecadesAsync()
+		{
+			var result = await _collection
+				.Aggregate()
+				.Bucket(
+					x => x.ReleaseDate,
+					new List<DateTime>
+					{
+						new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+						new(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+						new(2100, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+					},
+					x => new
+					{
+						_id = default(DateTime),
+						count = x.Count()
+					},
+					new AggregateBucketOptions<DateTime>
+					{
+						DefaultBucket = new DateTime(1, 1, 1)
+					}
+				).ToListAsync();
+
+			var centuries = result.Select(x => new BookCountByDateStart
+			{
+				DateStart = x._id,
+				Count = x.count
+			}).ToList();
+			return (centuries, new List<BookCountByDateStart>());
+		}
 	}
 }
