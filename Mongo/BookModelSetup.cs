@@ -1,6 +1,8 @@
-﻿using Mongo.Reviews;
+﻿using System;
+using Mongo.Reviews;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -36,6 +38,7 @@ namespace Mongo
 
 			BsonClassMap.RegisterClassMap<SimpleReview>();
 			BsonClassMap.RegisterClassMap<ExpertReview>();
+			BsonSerializer.RegisterDiscriminatorConvention(typeof(IReview), StandardDiscriminatorConvention.Scalar);
 		}
 	}
 }

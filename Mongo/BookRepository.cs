@@ -62,6 +62,13 @@ namespace Mongo
 			return await _collection.Find(filter).ToListAsync();
 		}
 
+		public async Task<List<BookModel>> GetBooksWithSimpleReviewsAsync()
+		{
+			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews, 
+				Builders<IReview>.Filter.And(Builders<IReview>.Filter.OfType<SimpleReview>()));
+			return await _collection.Find(filter).ToListAsync();
+		}
+
 		public async Task<bool> RemoveBookAsync(ObjectId id)
 		{
 			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, id.ToString());

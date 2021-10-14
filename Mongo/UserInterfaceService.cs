@@ -65,6 +65,9 @@ namespace Mongo
 						case "addreve":
 							await AddExpertReviewToBook();
 							break;
+						case "getsimple":
+							await GetBooksWithSimpleReviews();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -77,6 +80,13 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task GetBooksWithSimpleReviews()
+		{
+			var books = await _bookRepository.GetBooksWithSimpleReviewsAsync();
+			var booksStr = string.Join(Environment.NewLine, books);
+			Console.WriteLine(booksStr);
 		}
 
 		private async Task AddSimpleReviewToBook()
