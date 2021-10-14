@@ -162,5 +162,32 @@ namespace Mongo
 				.ToListAsync();
 			return result;
 		}
+
+		public async Task<List<string>> GetBooksTitlesAsync()
+		{
+			var result = await _collection
+				.Aggregate()
+				.Project(x => new
+				{
+					x.Title
+				})
+				.ToListAsync();
+			return result.Select(x => x.Title).ToList();
+		}
+
+		public async Task<List<BookTitleWithReviewsCount>> GetBooksTitleAndReviewsCountAsync()
+		{
+			var filter = Builders<BookModel>.Filter.Empty;
+			var result = await _collection
+				.Aggregate()
+				.Match(filter)
+				.Project(x => new BookTitleWithReviewsCount
+				{
+					Title = x.Title,
+					ReviewsCount = x.Reviews.Count
+				})
+				.ToListAsync();
+			return result;
+		}
 	}
 }

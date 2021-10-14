@@ -97,6 +97,12 @@ namespace Mongo
 						case "groupauthor1":
 							await GroupByAuthorsWithAtLeast1Book();
 							break;
+						case "titles":
+							await GetTitles();
+							break;
+						case "titlesreviews":
+							await GetTitlesAndReviewsCount();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -109,6 +115,20 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task GetTitlesAndReviewsCount()
+		{
+			var titlesAndReviewsCount = await _bookRepository.GetBooksTitleAndReviewsCountAsync();
+			var titlesAndReviewsCountStr = string.Join(Environment.NewLine, titlesAndReviewsCount);
+			Console.WriteLine(titlesAndReviewsCountStr);
+		}
+
+		private async Task GetTitles()
+		{
+			var titles = await _bookRepository.GetBooksTitlesAsync();
+			var titlesStr = string.Join(Environment.NewLine, titles);
+			Console.WriteLine(titlesStr);
 		}
 
 		private async Task GroupByAuthorsWithAtLeast1Book()

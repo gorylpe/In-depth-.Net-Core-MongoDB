@@ -25,5 +25,7 @@ namespace Mongo
 		Task<long>                                CountBooksWithAtLeastOneReviewAsync();
 		Task<List<BookTypeCount>>                 GroupByTypesAsync();
 		Task<List<AuthorBookCountWithNewestDate>> GroupByAuthorsWithAtLeast1BookAsync();
+		Task<List<string>>                        GetBooksTitlesAsync();
+		Task<List<BookTitleWithReviewsCount>>     GetBooksTitleAndReviewsCountAsync();
 	}
 }
