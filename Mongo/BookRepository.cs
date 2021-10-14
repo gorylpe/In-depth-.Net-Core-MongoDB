@@ -314,10 +314,25 @@ namespace Mongo
 		{
 			var filter = Builders<BookModel>.Filter.Empty;
 			var update = Builders<BookModel>.Update.Pipeline(new EmptyPipelineDefinition<BookModel>()
-				.AppendStage(new JsonPipelineStageDefinition<BookModel, BookModel>(
-					@"{ 
-                        $set: { modified: '$$NOW' }
-                    }"
+				.AppendStage<BookModel, BookModel, BookModel>((i, o) => new JsonPipelineStageDefinition<BookModel, BookModel>(
+					$@"{{
+                        '$set' : {{
+                            '{i.RenderField(x => x.Reviews)}' : {{
+                                '$filter' : {{
+                                    'input' : '${i.RenderField(x => x.Reviews)}',
+                                    'as' : 'item',
+                                    'cond' : {{
+                                        '$not' : {{ 
+                                            '$and' : [
+                                                {{ '$eq' : ['$$item.{i.RenderDiscriminatorField(x => x.Reviews)}', '{typeof(SimpleReview).RenderDiscriminator()}'] }},
+                                                {{ '$lt' : ['$$item.{CPE.RenderField<SimpleReview>(x => x.Overall)}', 50] }}
+                                            ]
+                                        }}
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}"
 				)));
 			await _collection.UpdateManyAsync(filter, update);
 		}

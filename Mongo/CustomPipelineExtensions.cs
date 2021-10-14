@@ -52,5 +52,14 @@ namespace Mongo
 			var projection = Renderer<TProjection>.Instance;
 			return aggregation.Project((ProjectionDefinition<TSource, TProjection>) render.Invoke(source, projection));
 		}
+
+		public static PipelineDefinition<TInput, TOutput> AppendStage<TInput, TIntermediate, TOutput>(
+			this PipelineDefinition<TInput, TIntermediate> pipeline,
+			Func<Renderer<TIntermediate>, Renderer<TOutput>, JsonPipelineStageDefinition<TIntermediate, TOutput>> render)
+		{
+			var intermediate = Renderer<TIntermediate>.Instance;
+			var projection = Renderer<TOutput>.Instance;
+			return pipeline.AppendStage(render.Invoke(intermediate, projection));
+		}
 	}
 }
