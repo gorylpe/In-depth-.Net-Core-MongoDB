@@ -94,6 +94,9 @@ namespace Mongo
 						case "grouptypes":
 							await GroupByTypes();
 							break;
+						case "groupauthor1":
+							await GroupByAuthorsWithAtLeast1Book();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -106,6 +109,12 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task GroupByAuthorsWithAtLeast1Book()
+		{
+			var authorBookCount = await _bookRepository.GroupByAuthorsWithAtLeast1BookAsync();
+			Console.WriteLine(string.Join("\n", authorBookCount));
 		}
 
 		private async Task GroupByTypes()

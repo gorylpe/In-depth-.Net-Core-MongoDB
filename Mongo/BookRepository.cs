@@ -137,15 +137,28 @@ namespace Mongo
 
 		public async Task<List<BookTypeCount>> GroupByTypesAsync()
 		{
-			var filter = Builders<BookModel>.Filter.Empty;
 			var result = await _collection
 				.Aggregate()
-				.Match(filter)
 				.Group(x => x.Type, grouping => new BookTypeCount
 				{
 					Type = grouping.Key,
 					Count = grouping.Count()
 				})
+				.ToListAsync();
+			return result;
+		}
+
+		public async Task<List<AuthorBookCountWithNewestDate>> GroupByAuthorsWithAtLeast1BookAsync()
+		{
+			var result = await _collection
+				.Aggregate()
+				.Group(x => x.Author, grouping => new AuthorBookCountWithNewestDate
+				{
+					Author = grouping.Key,
+					Count = grouping.Count(),
+					NewestDate = grouping.Max(x => x.ReleaseDate)
+				})
+				.Match(Builders<AuthorBookCountWithNewestDate>.Filter.Gt(x => x.Count, 1))
 				.ToListAsync();
 			return result;
 		}
