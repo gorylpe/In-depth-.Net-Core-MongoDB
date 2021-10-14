@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Mongo.Reviews;
 
-namespace Mongo
+namespace Mongo.Models
 {
 	public class BookModel
 	{

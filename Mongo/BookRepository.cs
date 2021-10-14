@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Mongo.Models;
 using Mongo.Reviews;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -131,6 +133,21 @@ namespace Mongo
 				.Count()
 				.SingleOrDefaultAsync();
 			return countResult?.Count ?? 0;
+		}
+
+		public async Task<List<BookTypeCount>> GroupByTypesAsync()
+		{
+			var filter = Builders<BookModel>.Filter.Empty;
+			var result = await _collection
+				.Aggregate()
+				.Match(filter)
+				.Group(x => x.Type, grouping => new BookTypeCount
+				{
+					Type = grouping.Key,
+					Count = grouping.Count()
+				})
+				.ToListAsync();
+			return result;
 		}
 	}
 }

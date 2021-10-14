@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Mongo.Models;
 using Mongo.Reviews;
 using MongoDB.Bson;
 
@@ -88,7 +89,10 @@ namespace Mongo
 							await CountBooksWithReleaseDateGreaterThan();
 							break;
 						case "countreview":
-							await CountBooksWithAtLeastOneReviewAsync();
+							await CountBooksWithAtLeastOneReview();
+							break;
+						case "grouptypes":
+							await GroupByTypes();
 							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
@@ -104,7 +108,13 @@ namespace Mongo
 			}
 		}
 
-		private async Task CountBooksWithAtLeastOneReviewAsync()
+		private async Task GroupByTypes()
+		{
+			var bookTypeCounts = await _bookRepository.GroupByTypesAsync();
+			Console.WriteLine(string.Join("\n", bookTypeCounts));
+		}
+
+		private async Task CountBooksWithAtLeastOneReview()
 		{
 			var count = await _bookRepository.CountBooksWithAtLeastOneReviewAsync();
 			Console.WriteLine($"Books count {count}");

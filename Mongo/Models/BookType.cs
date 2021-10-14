@@ -1,4 +1,4 @@
-﻿namespace Mongo
+﻿namespace Mongo.Models
 {
 	public enum BookType
 	{
