@@ -16,11 +16,30 @@ namespace Mongo
 		public BookType      Type        { get; set; }
 		public List<IReview> Reviews     { get; set; } = new();
 
+		public BookModel()
+		{
+		}
+
+		public BookModel(string title, string author, DateTime releaseDate, BookType type, List<IReview> reviews)
+		{
+			Title = title;
+			Author = author;
+			ReleaseDate = releaseDate;
+			Type = type;
+			Reviews = reviews;
+		}
+
+		public BookModel(string idek, string title, string author, DateTime releaseDate, BookType type, List<IReview> reviews) 
+			: this(title, author, releaseDate, type, reviews)
+		{
+			Idek = idek;
+		}
+
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine($"{Idek} - {Title} - {Author} - {ReleaseDate.Year} - {Type}");
-			foreach (var review in Reviews) 
+			foreach (var review in Reviews)
 				sb.AppendLine($"\t{review.Print()}");
 
 			return sb.ToString();

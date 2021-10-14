@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -35,6 +34,8 @@ namespace Mongo
 					var command = Console.ReadLine();
 					switch (command)
 					{
+						#region Old1
+
 						case "hello":
 							Console.WriteLine("Hello World!");
 							break;
@@ -74,6 +75,15 @@ namespace Mongo
 						case "getgrade":
 							await GetBooksWithGradeReviewsGreaterThan();
 							break;
+
+						#endregion
+
+						case "reset":
+							await ResetToDefault();
+							break;
+						case "count":
+							await CountBooks();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -87,6 +97,20 @@ namespace Mongo
 				}
 			}
 		}
+
+		private async Task ResetToDefault()
+		{
+			await _bookRepository.RemoveAllBooks();
+			await _bookRepository.AddBooksAsync(DefaultBooks.Books);
+		}
+
+		private async Task CountBooks()
+		{
+			var count = await _bookRepository.CountBooksAsync();
+			Console.WriteLine($"Books count {count}");
+		}
+
+		#region Old1
 
 		private async Task GetBooksWithGradeReviewsGreaterThan()
 		{
@@ -245,5 +269,7 @@ namespace Mongo
 			var added = await _bookRepository.AddBookAsync(book);
 			Console.WriteLine($"Book{(added ? "" : " not")} added");
 		}
+
+		#endregion
 	}
 }

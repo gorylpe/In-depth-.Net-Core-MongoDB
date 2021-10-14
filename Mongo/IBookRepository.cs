@@ -18,5 +18,7 @@ namespace Mongo
 		Task<bool>            RemoveBookAsync(ObjectId id);
 		Task<bool>            RemoveBooksAsync(List<ObjectId> ids);
 		Task<bool>            AddReviewToBook(ObjectId id, IReview review);
+		Task                  RemoveAllBooks();
+		Task<long>            CountBooksAsync();
 	}
 }

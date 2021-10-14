@@ -4,6 +4,15 @@
 	{
 		public Grade Grade { get; set; }
 
+		public GradeReview()
+		{
+		}
+
+		public GradeReview(Grade grade)
+		{
+			Grade = grade;
+		}
+
 		public string Print() => $"Only grade: {Grade}";
 	}
 }

@@ -97,5 +97,20 @@ namespace Mongo
 			var result = await _collection.FindOneAndUpdateAsync(filter, update);
 			return result != default;
 		}
+
+		public async Task RemoveAllBooks()
+		{
+			var filter = Builders<BookModel>.Filter.Empty;
+			await _collection.DeleteManyAsync(filter);
+		}
+
+		public async Task<long> CountBooksAsync()
+		{
+			var countResult = await _collection
+				.Aggregate()
+				.Count()
+				.SingleOrDefaultAsync();
+			return countResult?.Count ?? 0;
+		}
 	}
 }
