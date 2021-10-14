@@ -68,6 +68,12 @@ namespace Mongo
 						case "getsimple":
 							await GetBooksWithSimpleReviews();
 							break;
+						case "addrevg":
+							await AddGradeReviewToBook();
+							break;
+						case "getgrade":
+							await GetBooksWithGradeReviewsGreaterThan();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -80,6 +86,30 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task GetBooksWithGradeReviewsGreaterThan()
+		{
+			Console.Write("Grade: ");
+			var grade = Enum.Parse<Grade>(Console.ReadLine()!);
+			var books = await _bookRepository.GetBooksWithGradeReviewsGreaterThanAsync(grade);
+			var booksStr = string.Join(Environment.NewLine, books);
+			Console.WriteLine(booksStr);
+		}
+
+		private async Task AddGradeReviewToBook()
+		{
+			Console.Write("Id: ");
+			var id = Console.ReadLine();
+			var objectId = ObjectId.Parse(id);
+			Console.Write("Grade: ");
+			var grade = Enum.Parse<Grade>(Console.ReadLine()!);
+			var review = new GradeReview
+			{
+				Grade = grade
+			};
+			var added = await _bookRepository.AddReviewToBook(objectId, review);
+			Console.WriteLine($"Review{(added ? "" : " not")} added");
 		}
 
 		private async Task GetBooksWithSimpleReviews()

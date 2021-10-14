@@ -14,6 +14,7 @@ namespace Mongo
 		Task<List<BookModel>> GetBooksByAuthorAsync(string author);
 		Task<List<BookModel>> GetBooksNewerThanAsync(DateTime date);
 		Task<List<BookModel>> GetBooksWithSimpleReviewsAsync();
+		Task<List<BookModel>> GetBooksWithGradeReviewsGreaterThanAsync(Grade grade);
 		Task<bool>            RemoveBookAsync(ObjectId id);
 		Task<bool>            RemoveBooksAsync(List<ObjectId> ids);
 		Task<bool>            AddReviewToBook(ObjectId id, IReview review);

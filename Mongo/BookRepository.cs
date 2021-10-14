@@ -65,7 +65,16 @@ namespace Mongo
 		public async Task<List<BookModel>> GetBooksWithSimpleReviewsAsync()
 		{
 			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews, 
-				Builders<IReview>.Filter.And(Builders<IReview>.Filter.OfType<SimpleReview>()));
+				Builders<IReview>.Filter.OfType<SimpleReview>());
+			return await _collection.Find(filter).ToListAsync();
+		}
+
+		public async Task<List<BookModel>> GetBooksWithGradeReviewsGreaterThanAsync(Grade grade)
+		{
+			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews, 
+				Builders<IReview>.Filter.And(
+					Builders<IReview>.Filter.OfType<GradeReview>(),
+					Builders<IReview>.Filter.Lt(x => ((GradeReview) x).Grade, grade)));
 			return await _collection.Find(filter).ToListAsync();
 		}
 

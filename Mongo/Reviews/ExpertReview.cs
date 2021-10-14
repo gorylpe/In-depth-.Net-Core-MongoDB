@@ -5,9 +5,6 @@
 		public int    Overall        { get; set; }
 		public string AdditionalWord { get; set; }
 
-		public string Print()
-		{
-			return $"Expert says: {Overall} {AdditionalWord}";
-		}
+		public string Print() => $"Expert says: {Overall} {AdditionalWord}";
 	}
 }

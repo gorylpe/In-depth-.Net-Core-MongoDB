@@ -4,9 +4,6 @@
 	{
 		public int Overall { get; set; }
 
-		public string Print()
-		{
-			return $"People say: {Overall}";
-		}
+		public string Print() => $"People say: {Overall}";
 	}
 }

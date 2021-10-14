@@ -36,8 +36,24 @@ namespace Mongo
 				cm.SetIgnoreExtraElements(true);
 			});
 
-			BsonClassMap.RegisterClassMap<SimpleReview>();
-			BsonClassMap.RegisterClassMap<ExpertReview>();
+			BsonClassMap.RegisterClassMap<SimpleReview>(cm =>
+			{
+				cm.MapProperty(x => x.Overall)
+					.SetElementName("overall");
+			});
+			BsonClassMap.RegisterClassMap<ExpertReview>(cm =>
+			{
+				cm.MapProperty(x => x.Overall)
+					.SetElementName("overall");
+				cm.MapProperty(x => x.AdditionalWord)
+					.SetElementName("additionalWord");
+			});
+			BsonClassMap.RegisterClassMap<GradeReview>(cm =>
+			{
+				cm.MapProperty(x => x.Grade)
+					.SetElementName("grade")
+					.SetSerializer(new EnumSerializer<Grade>(BsonType.String));
+			});
 			BsonSerializer.RegisterDiscriminatorConvention(typeof(IReview), StandardDiscriminatorConvention.Scalar);
 		}
 	}
