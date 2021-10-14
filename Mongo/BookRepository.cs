@@ -195,8 +195,7 @@ namespace Mongo
 			var result = await _collection
 				.Aggregate()
 				.Facet(AggregateFacet.Create("Centuries",
-					CreatePipelineDefinition(
-						PipelineStageDefinitionBuilder.Bucket(
+					new EmptyPipelineDefinition<BookModel>().Bucket(
 							(BookModel x) => x.ReleaseDate,
 							new List<DateTime>
 							{
@@ -214,7 +213,7 @@ namespace Mongo
 								DefaultBucket = new DateTime(1, 1, 1)
 							}
 						)
-					))
+					)
 				).SingleAsync();
 
 			var result1 = FacetOutput(new {_id = default(DateTime), count = default(int)}, result.Facets[0]);
