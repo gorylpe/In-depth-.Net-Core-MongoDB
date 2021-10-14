@@ -10,7 +10,8 @@ namespace Mongo
 		public string   Title       { get; set; }
 		public string   Author      { get; set; } = DefaultAuthor;
 		public DateTime ReleaseDate { get; set; }
+		public BookType Type        { get; set; }
 
-		public override string ToString() => $"{Idek} - {Title} - {Author} - {ReleaseDate.Year}";
+		public override string ToString() => $"{Idek} - {Title} - {Author} - {ReleaseDate.Year} - {Type}";
 	}
 }

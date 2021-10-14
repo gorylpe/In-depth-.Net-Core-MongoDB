@@ -24,6 +24,9 @@ namespace Mongo
 				cm.MapProperty(x => x.ReleaseDate)
 					.SetElementName("releaseDate")
 					.SetSerializer(new DateTimeSerializer(true));
+				cm.MapProperty(x => x.Type)
+					.SetElementName("type")
+					.SetSerializer(new EnumSerializer<BookType>(BsonType.String));
 
 				cm.SetIgnoreExtraElements(true);
 			});

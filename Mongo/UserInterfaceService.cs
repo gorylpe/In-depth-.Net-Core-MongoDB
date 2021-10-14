@@ -153,11 +153,14 @@ namespace Mongo
 			var author = Console.ReadLine();
 			Console.Write("Year: ");
 			var year = Console.ReadLine();
+			Console.Write("Type: ");
+			var type = Enum.Parse<BookType>(Console.ReadLine()!);
 			var book = new BookModel
 			{
 				Title = title,
 				Author = author,
-				ReleaseDate = new DateTime(int.Parse(year!), 1, 1)
+				ReleaseDate = new DateTime(int.Parse(year!), 1, 1),
+				Type = type
 			};
 			var added = await _bookRepository.AddBookAsync(book);
 			Console.WriteLine($"Book{(added ? "" : " not")} added");
