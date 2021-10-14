@@ -30,5 +30,6 @@ namespace Mongo
 		Task<(List<BookCountByDateStart> Centuries, List<BookCountByDateStart> Decades)> GetBooksCountInCenturiesAndDecadesAsync();
 		Task<List<AuthorAverageOverallOfExpertReviews>>                                  AverageOverallOfExpertReviewsByAuthorAsync();
 		Task<List<AuthorUniqueSetGrades>>                                                UniqueSetOfGradesByAuthorAsync();
+		Task                                                                             UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async();
 	}
 }

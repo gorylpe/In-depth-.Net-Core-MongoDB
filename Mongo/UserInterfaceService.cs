@@ -113,6 +113,9 @@ namespace Mongo
 						case "uniquegrade":
 							await UniqueSetOfGradesByAuthor();
 							break;
+						case "update50":
+							await UpdateBooksRemoveSimpleReviewsWithOverallLessThan50();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -125,6 +128,12 @@ namespace Mongo
 					_logger.LogError("{Exception}", e.ToString());
 				}
 			}
+		}
+
+		private async Task UpdateBooksRemoveSimpleReviewsWithOverallLessThan50()
+		{
+			await _bookRepository.UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async();
+			Console.WriteLine("Books updated");
 		}
 
 		private async Task UniqueSetOfGradesByAuthor()

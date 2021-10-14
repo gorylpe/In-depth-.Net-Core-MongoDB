@@ -309,5 +309,17 @@ namespace Mongo
 
 			return result;
 		}
+		
+		public async Task UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async()
+		{
+			var filter = Builders<BookModel>.Filter.Empty;
+			var update = Builders<BookModel>.Update.Pipeline(new EmptyPipelineDefinition<BookModel>()
+				.AppendStage(new JsonPipelineStageDefinition<BookModel, BookModel>(
+					@"{ 
+                        $set: { modified: '$$NOW' }
+                    }"
+				)));
+			await _collection.UpdateManyAsync(filter, update);
+		}
 	}
 }
