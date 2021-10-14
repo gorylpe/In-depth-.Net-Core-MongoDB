@@ -190,42 +190,34 @@ namespace Mongo
 			return result;
 		}
 
-		private class FacetIntermediate
-		{
-			public DateTime _id   { get; set; }
-			public int      count { get; set; }
-		}
-
 		public async Task<(List<BookCountByDateStart> Centuries, List<BookCountByDateStart> Decades)> GetBooksCountInCenturiesAndDecadesAsync()
 		{
 			var result = await _collection
 				.Aggregate()
 				.Facet(AggregateFacet.Create("Centuries",
-					PipelineDefinition<BookModel, FacetIntermediate>.Create(
-						new[]
-						{
-							PipelineStageDefinitionBuilder.Bucket(
-								(BookModel x) => x.ReleaseDate,
-								new List<DateTime>
-								{
-									new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-									new(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-									new(2100, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-								},
-								x => new FacetIntermediate
-								{
-									_id = default,
-									count = x.Count()
-								},
-								new AggregateBucketOptions<DateTime>
-								{
-									DefaultBucket = new DateTime(1, 1, 1)
-								}
-							)
-						}))
+					CreatePipelineDefinition(
+						PipelineStageDefinitionBuilder.Bucket(
+							(BookModel x) => x.ReleaseDate,
+							new List<DateTime>
+							{
+								new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+								new(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+								new(2100, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+							},
+							x => new
+							{
+								_id = default(DateTime),
+								count = x.Count()
+							},
+							new AggregateBucketOptions<DateTime>
+							{
+								DefaultBucket = new DateTime(1, 1, 1)
+							}
+						)
+					))
 				).SingleAsync();
 
-			var result1 = result.Facets[0].Output<FacetIntermediate>();
+			var result1 = FacetOutput(new {_id = default(DateTime), count = default(int)}, result.Facets[0]);
 
 			var centuries = result1.Select(x => new BookCountByDateStart
 			{
@@ -234,5 +226,12 @@ namespace Mongo
 			}).ToList();
 			return (centuries, new List<BookCountByDateStart>());
 		}
+
+		private PipelineDefinition<TInput, TOutput> CreatePipelineDefinition<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage)
+		{
+			return PipelineDefinition<TInput, TOutput>.Create(new[] {stage});
+		}
+
+		private static IReadOnlyList<T> FacetOutput<T>(T _, AggregateFacetResult result) => result.Output<T>();
 	}
 }
