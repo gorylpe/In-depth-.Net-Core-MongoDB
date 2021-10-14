@@ -6,6 +6,7 @@ using Mongo.Models;
 using Mongo.Reviews;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using CPE = Mongo.CustomPipelineExtensions;
 
 namespace Mongo
 {
@@ -203,7 +204,7 @@ namespace Mongo
 			var result = await _collection
 				.Aggregate()
 				.Facet(AggregateFacet.Create("Centuries",
-					new EmptyPipelineDefinition<BookModel>().Bucket(
+						new EmptyPipelineDefinition<BookModel>().Bucket(
 							x => x.ReleaseDate,
 							centuriesDates,
 							x => new
@@ -247,10 +248,10 @@ namespace Mongo
 				DateStart = x._id,
 				Count = x.count
 			}).ToList();
-			
+
 			return (centuries, decades);
 		}
-		
+
 		private static IReadOnlyList<T> FacetOutput<T>(T _, AggregateFacetResult result) => result.Output<T>();
 
 		public async Task<List<AuthorAverageOverallOfExpertReviews>> AverageOverallOfExpertReviewsByAuthorAsync()
@@ -258,29 +259,28 @@ namespace Mongo
 			var result = await _collection
 				.Aggregate()
 				.Project(
-				    (ProjectionDefinition<BookModel, BookAuthorFilteredReviewModel>)
-				    $@"{{
-				    'author' : '$author',
-				    'reviews' : {{
+					(ProjectionDefinition<BookModel, BookAuthorFilteredReviewModel>)
+					$@"{{
+				    '{CPE.RenderField<BookAuthorFilteredReviewModel>(x => x.Author)}' : '${CPE.RenderField<BookModel>(x => x.Author)}',
+				    '{CPE.RenderField<BookAuthorFilteredReviewModel>(x => x.Reviews)}' : {{
 				        '$filter' : {{
-				            'input' : '$reviews',
+				            'input' : '${CPE.RenderField<BookModel>(x => x.Reviews)}',
 				            'as' : 'item',
 				            'cond' : {{
-				                '$eq' : ['$$item._t', 'Expert']
+				                '$eq' : ['$$item.{CPE.RenderDiscriminatorField((BookModel x) => x.Reviews)}', '{typeof(ExpertReview).RenderDiscriminator()}']
 				            }}
 				        }}
 				    }}
 				}}")
-			    .Unwind<BookAuthorFilteredReviewModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
-			    .Group(x => x.Author, grouping => new AuthorAverageOverallOfExpertReviews
-			    {
-			        Author = grouping.Key,
-			        Average = grouping.Average(x => ((ExpertReview) x.Reviews).Overall)
-			    })
-			    .ToListAsync();
+				.Unwind<BookAuthorFilteredReviewModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
+				.Group(x => x.Author, grouping => new AuthorAverageOverallOfExpertReviews
+				{
+					Author = grouping.Key,
+					Average = grouping.Average(x => ((ExpertReview) x.Reviews).Overall)
+				})
+				.ToListAsync();
 
 			return result;
 		}
-
 	}
 }
