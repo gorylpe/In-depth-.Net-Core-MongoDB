@@ -66,14 +66,14 @@ namespace Mongo
 
 		public async Task<List<BookModel>> GetBooksWithSimpleReviewsAsync()
 		{
-			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews, 
+			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews,
 				Builders<IReview>.Filter.OfType<SimpleReview>());
 			return await _collection.Find(filter).ToListAsync();
 		}
 
 		public async Task<List<BookModel>> GetBooksWithGradeReviewsGreaterThanAsync(Grade grade)
 		{
-			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews, 
+			var filter = Builders<BookModel>.Filter.ElemMatch(x => x.Reviews,
 				Builders<IReview>.Filter.And(
 					Builders<IReview>.Filter.OfType<GradeReview>(),
 					Builders<IReview>.Filter.Lt(x => ((GradeReview) x).Grade, grade)));
@@ -189,31 +189,45 @@ namespace Mongo
 				.ToListAsync();
 			return result;
 		}
-		
+
+		private class FacetIntermediate
+		{
+			public DateTime _id   { get; set; }
+			public int      count { get; set; }
+		}
+
 		public async Task<(List<BookCountByDateStart> Centuries, List<BookCountByDateStart> Decades)> GetBooksCountInCenturiesAndDecadesAsync()
 		{
 			var result = await _collection
 				.Aggregate()
-				.Bucket(
-					x => x.ReleaseDate,
-					new List<DateTime>
-					{
-						new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
-						new(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
-						new(2100, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-					},
-					x => new
-					{
-						_id = default(DateTime),
-						count = x.Count()
-					},
-					new AggregateBucketOptions<DateTime>
-					{
-						DefaultBucket = new DateTime(1, 1, 1)
-					}
-				).ToListAsync();
+				.Facet(AggregateFacet.Create("Centuries",
+					PipelineDefinition<BookModel, FacetIntermediate>.Create(
+						new[]
+						{
+							PipelineStageDefinitionBuilder.Bucket(
+								(BookModel x) => x.ReleaseDate,
+								new List<DateTime>
+								{
+									new(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+									new(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+									new(2100, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+								},
+								x => new FacetIntermediate
+								{
+									_id = default,
+									count = x.Count()
+								},
+								new AggregateBucketOptions<DateTime>
+								{
+									DefaultBucket = new DateTime(1, 1, 1)
+								}
+							)
+						}))
+				).SingleAsync();
 
-			var centuries = result.Select(x => new BookCountByDateStart
+			var result1 = result.Facets[0].Output<FacetIntermediate>();
+
+			var centuries = result1.Select(x => new BookCountByDateStart
 			{
 				DateStart = x._id,
 				Count = x.count
