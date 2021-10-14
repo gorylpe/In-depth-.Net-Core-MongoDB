@@ -255,9 +255,23 @@ namespace Mongo
 
 		public async Task<List<AuthorAverageOverallOfExpertReviews>> AverageOverallOfExpertReviewsByAuthorAsync()
 		{
-			var result = await _collection.Aggregate()
-			    .Unwind<BookModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
-			    .Match(Builders<BookAuthorUnwindReviewModel>.Filter.OfType<IReview, ExpertReview>(x => x.Reviews))
+			var result = await _collection
+				.Aggregate()
+				.Project(
+				    (ProjectionDefinition<BookModel, BookAuthorFilteredReviewModel>)
+				    $@"{{
+				    'author' : '$author',
+				    'reviews' : {{
+				        '$filter' : {{
+				            'input' : '$reviews',
+				            'as' : 'item',
+				            'cond' : {{
+				                '$eq' : ['$$item._t', 'Expert']
+				            }}
+				        }}
+				    }}
+				}}")
+			    .Unwind<BookAuthorFilteredReviewModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
 			    .Group(x => x.Author, grouping => new AuthorAverageOverallOfExpertReviews
 			    {
 			        Author = grouping.Key,
