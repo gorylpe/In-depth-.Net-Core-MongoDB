@@ -20,7 +20,9 @@ namespace Mongo
 					new ExpertReview(13, "Herezje"),
 					new SimpleReview(78),
 					new SimpleReview(56),
-					new GradeReview(Grade.E)
+					new GradeReview(Grade.E),
+					new GradeReview(Grade.E),
+					new GradeReview(Grade.D),
 				}),
 			new(
 				"6168656cdd6f908005daabf9",

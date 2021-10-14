@@ -281,5 +281,33 @@ namespace Mongo
 
 			return result;
 		}
+		
+		public async Task<List<AuthorUniqueSetGrades>> UniqueSetOfGradesByAuthorAsync()
+		{
+			var result = await _collection
+				.Aggregate()
+				.Project<BookModel, BookAuthorFilteredGradeReviewModel>((s, p) =>
+					$@"{{
+                    '{p.RenderField(x => x.Author)}' : '${s.RenderField(x => x.Author)}',
+                    '{p.RenderField(x => x.Reviews)}' : {{
+                        '$filter' : {{
+                            'input' : '${s.RenderField(x => x.Reviews)}',
+                            'as' : 'item',
+                            'cond' : {{
+                                '$eq' : ['$$item.{s.RenderDiscriminatorField(x => x.Reviews)}', '{typeof(GradeReview).RenderDiscriminator()}']
+                            }}
+                        }}
+                    }}
+                }}")
+				.Unwind<BookAuthorFilteredGradeReviewModel, BookAuthorUnwindReviewModel>(x => x.Reviews)
+				.Group(x => x.Author, grouping => new AuthorUniqueSetGrades
+				{
+					Author = grouping.Key,
+					Grades = grouping.Select(x => ((GradeReview) x.Reviews).Grade).Distinct()
+				})
+				.ToListAsync();
+
+			return result;
+		}
 	}
 }

@@ -110,6 +110,9 @@ namespace Mongo
 						case "averageexpert":
 							await AverageOverallOfExpertReviewsByAuthor();
 							break;
+						case "uniquegrade":
+							await UniqueSetOfGradesByAuthor();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -119,9 +122,16 @@ namespace Mongo
 				}
 				catch (Exception e)
 				{
-					_logger.LogError(e.Message);
+					_logger.LogError("{Exception}", e.ToString());
 				}
 			}
+		}
+
+		private async Task UniqueSetOfGradesByAuthor()
+		{
+			var grades = await _bookRepository.UniqueSetOfGradesByAuthorAsync();
+			var gradesStr = string.Join(Environment.NewLine, grades.Select(x => $"\t{x}"));
+			Console.WriteLine(gradesStr);
 		}
 
 		private async Task AverageOverallOfExpertReviewsByAuthor()
@@ -212,10 +222,12 @@ namespace Mongo
 			var objectId = ObjectId.Parse(id);
 			Console.Write("Grade: ");
 			var grade = Enum.Parse<Grade>(Console.ReadLine()!);
+
 			var review = new GradeReview
 			{
 				Grade = grade
 			};
+
 			var added = await _bookRepository.AddReviewToBook(objectId, review);
 			Console.WriteLine($"Review{(added ? "" : " not")} added");
 		}
@@ -234,10 +246,12 @@ namespace Mongo
 			var objectId = ObjectId.Parse(id);
 			Console.Write("Overall: ");
 			var overall = int.Parse(Console.ReadLine()!);
+
 			var review = new SimpleReview
 			{
 				Overall = overall
 			};
+
 			var added = await _bookRepository.AddReviewToBook(objectId, review);
 			Console.WriteLine($"Review{(added ? "" : " not")} added");
 		}
@@ -251,11 +265,13 @@ namespace Mongo
 			var overall = int.Parse(Console.ReadLine()!);
 			Console.Write("Additional word: ");
 			var additionalWord = Console.ReadLine();
+
 			var review = new ExpertReview
 			{
 				Overall = overall,
 				AdditionalWord = additionalWord
 			};
+
 			var added = await _bookRepository.AddReviewToBook(objectId, review);
 			Console.WriteLine($"Review{(added ? "" : " not")} added");
 		}
@@ -266,11 +282,13 @@ namespace Mongo
 			var title = Console.ReadLine();
 			Console.Write("Year: ");
 			var year = Console.ReadLine();
+
 			var book = new BookModel
 			{
 				Title = title,
 				ReleaseDate = new DateTime(int.Parse(year!), 1, 1)
 			};
+
 			var added = await _bookRepository.AddBookAsync(book);
 			Console.WriteLine($"Book{(added ? "" : " not")} added");
 		}
@@ -297,8 +315,11 @@ namespace Mongo
 			var author = Console.ReadLine();
 			Console.Write("Number of books: ");
 			var num = int.Parse(Console.ReadLine()!);
+
 			var books = new List<BookModel>();
-			for (var i = 0; i < num; i++)
+			for (var i = 0;
+				i < num;
+				i++)
 			{
 				Console.WriteLine($"Adding book {i + 1}/{num}");
 				Console.Write("Title: ");
@@ -343,6 +364,7 @@ namespace Mongo
 			var year = Console.ReadLine();
 			Console.Write("Type: ");
 			var type = Enum.Parse<BookType>(Console.ReadLine()!);
+
 			var book = new BookModel
 			{
 				Title = title,
@@ -350,6 +372,7 @@ namespace Mongo
 				ReleaseDate = new DateTime(int.Parse(year!), 1, 1),
 				Type = type
 			};
+
 			var added = await _bookRepository.AddBookAsync(book);
 			Console.WriteLine($"Book{(added ? "" : " not")} added");
 		}
