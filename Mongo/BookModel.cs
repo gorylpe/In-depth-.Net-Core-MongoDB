@@ -21,7 +21,7 @@ namespace Mongo
 			var sb = new StringBuilder();
 			sb.AppendLine($"{Idek} - {Title} - {Author} - {ReleaseDate.Year} - {Type}");
 			foreach (var review in Reviews) 
-				sb.AppendLine(review.Print());
+				sb.AppendLine($"\t{review.Print()}");
 
 			return sb.ToString();
 		}

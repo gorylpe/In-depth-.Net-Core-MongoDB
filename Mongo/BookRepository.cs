@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Mongo.Reviews;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -71,6 +72,14 @@ namespace Mongo
 		public Task<bool> RemoveBooksAsync(List<ObjectId> ids)
 		{
 			throw new NotImplementedException();
+		}
+
+		public async Task<bool> AddReviewToBook(ObjectId id, IReview review)
+		{
+			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, id.ToString());
+			var update = Builders<BookModel>.Update.Push(x => x.Reviews, review);
+			var result = await _collection.FindOneAndUpdateAsync(filter, update);
+			return result != default;
 		}
 	}
 }

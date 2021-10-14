@@ -2,7 +2,7 @@
 {
 	public class SimpleReview : IReview
 	{
-		public int Overall { get; }
+		public int Overall { get; set; }
 
 		public string Print()
 		{

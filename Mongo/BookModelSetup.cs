@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Mongo.Reviews;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
@@ -32,6 +33,9 @@ namespace Mongo
 
 				cm.SetIgnoreExtraElements(true);
 			});
+
+			BsonClassMap.RegisterClassMap<SimpleReview>();
+			BsonClassMap.RegisterClassMap<ExpertReview>();
 		}
 	}
 }

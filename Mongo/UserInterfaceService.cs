@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Mongo.Reviews;
 using MongoDB.Bson;
 
 namespace Mongo
@@ -58,6 +59,12 @@ namespace Mongo
 						case "getnt":
 							await GetBooksNewerThan();
 							break;
+						case "addrevs":
+							await AddSimpleReviewToBook();
+							break;
+						case "addreve":
+							await AddExpertReviewToBook();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -70,6 +77,39 @@ namespace Mongo
 					_logger.LogError(e.Message);
 				}
 			}
+		}
+
+		private async Task AddSimpleReviewToBook()
+		{
+			Console.Write("Id: ");
+			var id = Console.ReadLine();
+			var objectId = ObjectId.Parse(id);
+			Console.Write("Overall: ");
+			var overall = int.Parse(Console.ReadLine()!);
+			var review = new SimpleReview
+			{
+				Overall = overall
+			};
+			var added = await _bookRepository.AddReviewToBook(objectId, review);
+			Console.WriteLine($"Review{(added ? "" : " not")} added");
+		}
+
+		private async Task AddExpertReviewToBook()
+		{
+			Console.Write("Id: ");
+			var id = Console.ReadLine();
+			var objectId = ObjectId.Parse(id);
+			Console.Write("Overall: ");
+			var overall = int.Parse(Console.ReadLine()!);
+			Console.Write("Additional word: ");
+			var additionalWord = Console.ReadLine();
+			var review = new ExpertReview
+			{
+				Overall = overall,
+				AdditionalWord = additionalWord
+			};
+			var added = await _bookRepository.AddReviewToBook(objectId, review);
+			Console.WriteLine($"Review{(added ? "" : " not")} added");
 		}
 
 		private async Task AddBookWithoutAuthor()
