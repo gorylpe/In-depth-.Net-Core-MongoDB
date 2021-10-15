@@ -23,6 +23,7 @@ namespace Mongo
 			{
 				var logger = x.GetService<ILogger<MongoClientSettings>>();
 				var settings = MongoClientSettings.FromUrl(x.GetService<MongoUrl>());
+				settings.SdamLogFilename = @"sdam.log";
 				settings.ClusterConfigurator = builder =>
 				{
 					builder.Subscribe<CommandStartedEvent>(e =>
