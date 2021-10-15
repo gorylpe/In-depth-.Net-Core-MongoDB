@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Mongo.Models;
 using MongoDB.Bson;
@@ -66,6 +67,35 @@ namespace Mongo
 				}
 
 				return true;
+			}, new TransactionOptions(maxCommitTime: TimeSpan.FromSeconds(5)));
+		}
+
+		public async Task<List<BookModel>> ReserveMultipleBooksOnlyAvailable(ObjectId userId, List<ObjectId> booksIds)
+		{
+			using var session = await _client.StartSessionAsync();
+			return await session.WithTransactionAsync(async (handle, token) =>
+			{
+				var notReservedBooks = await _bookRepository.GetNotReservedBooksFromList(booksIds, handle);
+				var notReservedBooksIds = notReservedBooks.Select(x => new ObjectId(x.Idek)).ToList();
+				Console.WriteLine($"RESERVING {notReservedBooks.Count} BOOKS FOR {userId}");
+
+				var bookAdded = await _userRepository.ReserveBooksAsync(userId, notReservedBooksIds, _config.MaxBooksPerUser, handle);
+				if (!bookAdded)
+				{
+					await handle.AbortTransactionAsync(token);
+					return null;
+				}
+
+				await Task.Delay(500);
+				var reserved = await _bookRepository.ReserveBooksAsync(notReservedBooksIds, userId, handle);
+				if (!reserved)
+				{
+					await handle.AbortTransactionAsync(token);
+					return null;
+				}
+
+				await Task.Delay(500);
+				return notReservedBooks;
 			}, new TransactionOptions(maxCommitTime: TimeSpan.FromSeconds(5)));
 		}
 	}

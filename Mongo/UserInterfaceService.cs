@@ -131,6 +131,9 @@ namespace Mongo
 						case "reserves":
 							await ReserveBooks();
 							break;
+						case "reservetest":
+							await ReserveBooksOnlyAvailableTest();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -143,6 +146,20 @@ namespace Mongo
 					_logger.LogError("{Exception}", e.ToString());
 				}
 			}
+		}
+
+		private async Task ReserveBooksOnlyAvailableTest()
+		{
+			var books = await _bookRepository.GetBooksAsync();
+			var users = await _userRepository.GetUsersAsync();
+			var t1 = _bookReservationService.ReserveMultipleBooksOnlyAvailable(
+				new ObjectId(users[0].Id), 
+				books.Skip(1).Take(2).Select(x => new ObjectId(x.Idek)).ToList());
+			var t2 = _bookReservationService.ReserveMultipleBooksOnlyAvailable(
+				new ObjectId(users[1].Id), 
+				books.Take(2).Select(x => new ObjectId(x.Idek)).ToList());
+			await Task.WhenAll(t1, t2);
+			_logger.LogInformation("{Info}", $"Reserved {t1.Result?.Count ?? -1}, {t2.Result?.Count ?? -1}");
 		}
 
 		private async Task ReserveBooks()
