@@ -344,8 +344,6 @@ namespace Mongo
 
 			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, userId.ToString());
 			var result = await _collection.UpdateOneAsync(filter, update);
-			
-			Console.WriteLine(result.MatchedCount);
 
 			return result.ModifiedCount == 1;
 		}
