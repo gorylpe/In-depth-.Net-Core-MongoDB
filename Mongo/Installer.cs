@@ -18,19 +18,14 @@ namespace Mongo
 				builder.AddConsole();
 			});
 
+			serviceCollection.AddSingleton<EventSubscriber>();
 			serviceCollection.AddSingleton(new MongoUrl(context.Configuration.GetSection("Mongo").Get<string>()));
 			serviceCollection.AddSingleton(x =>
 			{
 				var logger = x.GetService<ILogger<MongoClientSettings>>();
 				var settings = MongoClientSettings.FromUrl(x.GetService<MongoUrl>());
 				settings.SdamLogFilename = @"sdam.log";
-				settings.ClusterConfigurator = builder =>
-				{
-					builder.Subscribe<CommandStartedEvent>(e =>
-					{
-						logger.LogDebug("Executing command {CommandName} \n {Command}", e.CommandName, e.Command.ToJson());
-					});
-				};
+				settings.ClusterConfigurator = builder => builder.Subscribe(x.GetService<EventSubscriber>());
 				return settings;
 			});
 			serviceCollection.AddSingleton<IMongoClient>(x =>
