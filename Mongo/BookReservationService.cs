@@ -49,25 +49,17 @@ namespace Mongo
 		public async Task<bool> ReserveMultipleBooks(ObjectId userId, List<ObjectId> booksIds)
 		{
 			using var session = await _client.StartSessionAsync();
-			session.StartTransaction();
-
-			try
+			return await session.WithTransactionAsync(async (handle, token) =>
 			{
-				var bookAdded = await _userRepository.ReserveBooksAsync(userId, booksIds, _config.MaxBooksPerUser, session);
+				var bookAdded = await _userRepository.ReserveBooksAsync(userId, booksIds, _config.MaxBooksPerUser, handle);
 				if (!bookAdded)
 					return false;
-				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, session);
+				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, handle);
 				if (!reserved)
 					return false;
-			}
-			catch (Exception e)
-			{
-				await session.AbortTransactionAsync();
-				return false;
-			}
 
-			await session.CommitTransactionAsync();
-			return true;
+				return true;
+			}, new TransactionOptions(maxCommitTime: TimeSpan.FromSeconds(5)));
 		}
 	}
 }
