@@ -53,11 +53,11 @@ namespace Mongo
 
 			try
 			{
-				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, session);
-				if (!reserved)
-					return false;
 				var bookAdded = await _userRepository.ReserveBooksAsync(userId, booksIds, _config.MaxBooksPerUser, session);
 				if (!bookAdded)
+					return false;
+				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, session);
+				if (!reserved)
 					return false;
 			}
 			catch (Exception e)
