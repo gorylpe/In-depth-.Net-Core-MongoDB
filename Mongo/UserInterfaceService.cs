@@ -16,12 +16,17 @@ namespace Mongo
 		private readonly ILogger<UserInterfaceService> _logger;
 		private readonly IHostApplicationLifetime      _hostApplicationLifetime;
 		private readonly IBookRepository               _bookRepository;
+		private readonly IUserRepository               _userRepository;
+		private readonly BookReservationService        _bookReservationService;
 
-		public UserInterfaceService(ILogger<UserInterfaceService> logger, IHostApplicationLifetime hostApplicationLifetime, IBookRepository bookRepository)
+		public UserInterfaceService(ILogger<UserInterfaceService> logger, IHostApplicationLifetime hostApplicationLifetime, IBookRepository bookRepository,
+			IUserRepository userRepository, BookReservationService bookReservationService)
 		{
 			_logger = logger;
 			_hostApplicationLifetime = hostApplicationLifetime;
 			_bookRepository = bookRepository;
+			_userRepository = userRepository;
+			_bookReservationService = bookReservationService;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -78,8 +83,6 @@ namespace Mongo
 							await GetBooksWithGradeReviewsGreaterThan();
 							break;
 
-						#endregion
-
 						case "reset":
 							await ResetToDefault();
 							break;
@@ -116,6 +119,15 @@ namespace Mongo
 						case "update50":
 							await UpdateBooksRemoveSimpleReviewsWithOverallLessThan50();
 							break;
+
+						#endregion
+
+						case "getu":
+							await GetUsers();
+							break;
+						case "reserve":
+							await ReserveBook();
+							break;
 						case "exit":
 							_hostApplicationLifetime.StopApplication();
 							return;
@@ -129,6 +141,25 @@ namespace Mongo
 				}
 			}
 		}
+
+		private async Task ReserveBook()
+		{
+			Console.Write("User id: ");
+			var userId = ObjectId.Parse(Console.ReadLine());
+			Console.Write("Book id: ");
+			var bookId = ObjectId.Parse(Console.ReadLine());
+			var result = await _bookReservationService.ReserveSingleBook(userId, bookId);
+			Console.WriteLine($"Book{(result ? "" : " not")} reserved");
+		}
+
+		private async Task GetUsers()
+		{
+			var users = await _userRepository.GetUsersAsync();
+			var usersStr = string.Join(Environment.NewLine, users);
+			Console.WriteLine(usersStr);
+		}
+
+		#region Old1
 
 		private async Task UpdateBooksRemoveSimpleReviewsWithOverallLessThan50()
 		{
@@ -205,6 +236,8 @@ namespace Mongo
 		{
 			await _bookRepository.RemoveAllBooks();
 			await _bookRepository.AddBooksAsync(DefaultBooks.Books);
+			await _userRepository.RemoveAllUsers();
+			await _userRepository.AddUsersAsync(DefaultUsers.Users);
 		}
 
 		private async Task CountBooks()
@@ -212,8 +245,6 @@ namespace Mongo
 			var count = await _bookRepository.CountBooksAsync();
 			Console.WriteLine($"Books count {count}");
 		}
-
-		#region Old1
 
 		private async Task GetBooksWithGradeReviewsGreaterThan()
 		{

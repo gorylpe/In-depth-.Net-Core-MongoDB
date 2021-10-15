@@ -15,6 +15,7 @@ namespace Mongo.Models
 		public DateTime      ReleaseDate { get; set; }
 		public BookType      Type        { get; set; }
 		public List<IReview> Reviews     { get; set; } = new();
+		public string        ReservedBy  { get; set; }
 
 		public BookModel()
 		{
@@ -29,7 +30,7 @@ namespace Mongo.Models
 			Reviews = reviews;
 		}
 
-		public BookModel(string idek, string title, string author, DateTime releaseDate, BookType type, List<IReview> reviews) 
+		public BookModel(string idek, string title, string author, DateTime releaseDate, BookType type, List<IReview> reviews)
 			: this(title, author, releaseDate, type, reviews)
 		{
 			Idek = idek;

@@ -45,11 +45,15 @@ namespace Mongo
 			});
 
 			serviceCollection.AddSingleton<IBookRepository, BookRepository>();
+			serviceCollection.AddSingleton<IUserRepository, UserRepository>();
 
 			serviceCollection.AddHostedService<MongoInitService>();
 			serviceCollection.AddHostedService<UserInterfaceService>();
+
+			serviceCollection.AddSingleton(context.Configuration.GetSection("BookReservationService").Get<BookReservationServiceConfig>());
+			serviceCollection.AddSingleton<BookReservationService>();
 			
-			BookModelSetup.Setup();
+			MongoModelsSetup.Setup();
 		}
 	}
 }

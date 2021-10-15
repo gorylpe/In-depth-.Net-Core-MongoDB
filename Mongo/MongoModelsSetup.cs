@@ -1,17 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using Mongo.Models;
 using Mongo.Reviews;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace Mongo
 {
-	public static class BookModelSetup
+	public static class MongoModelsSetup
 	{
 		public static void Setup()
 		{
@@ -70,6 +67,12 @@ namespace Mongo
 			BsonSerializer.RegisterDiscriminator(typeof(GradeReview), "GradeReview");
 			
 			BsonSerializer.RegisterDiscriminatorConvention(typeof(IReview), StandardDiscriminatorConvention.Scalar);
+
+			BsonClassMap.RegisterClassMap<UserModel>(cm =>
+			{
+				cm.MapIdMember(x => x.Id);
+				cm.AutoMap();
+			});
 		}
 	}
 }

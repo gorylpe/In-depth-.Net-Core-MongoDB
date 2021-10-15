@@ -281,7 +281,7 @@ namespace Mongo
 
 			return result;
 		}
-		
+
 		public async Task<List<AuthorUniqueSetGrades>> UniqueSetOfGradesByAuthorAsync()
 		{
 			var result = await _collection
@@ -309,7 +309,7 @@ namespace Mongo
 
 			return result;
 		}
-		
+
 		public async Task UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async()
 		{
 			var filter = Builders<BookModel>.Filter.Empty;
@@ -335,6 +335,27 @@ namespace Mongo
                     }}"
 				)));
 			await _collection.UpdateManyAsync(filter, update);
+		}
+
+		public async Task<bool> ReserveBookAsync(ObjectId bookId, ObjectId userId)
+		{
+			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, bookId.ToString());
+			filter &= Builders<BookModel>.Filter.Eq(x => x.ReservedBy, null);
+
+			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, userId.ToString());
+			var result = await _collection.UpdateOneAsync(filter, update);
+			
+			Console.WriteLine(result.MatchedCount);
+
+			return result.ModifiedCount == 1;
+		}
+
+		public async Task RemoveBookReservationAsync(ObjectId bookId)
+		{
+			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, bookId.ToString());
+
+			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, null);
+			await _collection.UpdateOneAsync(filter, update);
 		}
 	}
 }

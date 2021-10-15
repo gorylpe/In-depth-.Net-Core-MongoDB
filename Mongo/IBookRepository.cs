@@ -31,5 +31,7 @@ namespace Mongo
 		Task<List<AuthorAverageOverallOfExpertReviews>>                                  AverageOverallOfExpertReviewsByAuthorAsync();
 		Task<List<AuthorUniqueSetGrades>>                                                UniqueSetOfGradesByAuthorAsync();
 		Task                                                                             UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async();
+		Task<bool>                                                                       ReserveBookAsync(ObjectId bookId, ObjectId userId);
+		Task                                                                             RemoveBookReservationAsync(ObjectId bookId);
 	}
 }
