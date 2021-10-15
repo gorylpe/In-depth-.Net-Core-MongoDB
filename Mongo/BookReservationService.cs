@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mongo.Models;
 using MongoDB.Bson;
@@ -32,6 +33,30 @@ namespace Mongo
 				if (!reserved)
 					return false;
 				var bookAdded = await _userRepository.ReserveBookAsync(userId, bookId, _config.MaxBooksPerUser, session);
+				if (!bookAdded)
+					return false;
+			}
+			catch (Exception e)
+			{
+				await session.AbortTransactionAsync();
+				return false;
+			}
+
+			await session.CommitTransactionAsync();
+			return true;
+		}
+
+		public async Task<bool> ReserveMultipleBooks(ObjectId userId, List<ObjectId> booksIds)
+		{
+			using var session = await _client.StartSessionAsync();
+			session.StartTransaction();
+
+			try
+			{
+				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, session);
+				if (!reserved)
+					return false;
+				var bookAdded = await _userRepository.ReserveBooksAsync(userId, booksIds, _config.MaxBooksPerUser, session);
 				if (!bookAdded)
 					return false;
 			}

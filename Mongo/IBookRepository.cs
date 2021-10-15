@@ -32,7 +32,9 @@ namespace Mongo
 		Task<List<AuthorAverageOverallOfExpertReviews>>                                  AverageOverallOfExpertReviewsByAuthorAsync();
 		Task<List<AuthorUniqueSetGrades>>                                                UniqueSetOfGradesByAuthorAsync();
 		Task                                                                             UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async();
-		Task<bool>                                                                       ReserveBookAsync(ObjectId bookId, ObjectId userId, IClientSessionHandle handle = null);
-		Task                                                                             RemoveBookReservationAsync(ObjectId bookId);
+
+		Task<bool> ReserveBookAsync(ObjectId bookId, ObjectId userId, IClientSessionHandle handle = null);
+		Task       RemoveBookReservationAsync(ObjectId bookId);
+		Task<bool> ReserveBooksAsync(List<ObjectId> booksIds, ObjectId userId, IClientSessionHandle handle);
 	}
 }

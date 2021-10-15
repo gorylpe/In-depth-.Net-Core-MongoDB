@@ -357,5 +357,16 @@ namespace Mongo
 			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, null);
 			await _collection.UpdateOneAsync(filter, update);
 		}
+
+		public async Task<bool> ReserveBooksAsync(List<ObjectId> booksIds, ObjectId userId, IClientSessionHandle handle)
+		{
+			var filter = Builders<BookModel>.Filter.In(x => x.Idek, booksIds.Select(x => x.ToString()));
+			filter &= Builders<BookModel>.Filter.Eq(x => x.ReservedBy, null);
+
+			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, userId.ToString());
+
+			var result = await _collection.UpdateManyAsync(handle, filter, update);
+			return result.ModifiedCount == booksIds.Count;
+		}
 	}
 }

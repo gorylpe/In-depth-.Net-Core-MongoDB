@@ -13,5 +13,6 @@ namespace Mongo
 		Task<List<UserModel>> GetUsersAsync();
 		Task                  RemoveAllUsers();
 		Task<bool>            ReserveBookAsync(ObjectId userId, ObjectId bookId, int maxBooksPerUser, IClientSessionHandle handle = null);
+		Task<bool>            ReserveBooksAsync(ObjectId userId, List<ObjectId> booksIds, int maxBooksPerUser, IClientSessionHandle handle);
 	}
 }
