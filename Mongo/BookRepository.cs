@@ -337,13 +337,15 @@ namespace Mongo
 			await _collection.UpdateManyAsync(filter, update);
 		}
 
-		public async Task<bool> ReserveBookAsync(ObjectId bookId, ObjectId userId)
+		public async Task<bool> ReserveBookAsync(ObjectId bookId, ObjectId userId, IClientSessionHandle handle = null)
 		{
 			var filter = Builders<BookModel>.Filter.Eq(x => x.Idek, bookId.ToString());
 			filter &= Builders<BookModel>.Filter.Eq(x => x.ReservedBy, null);
 
 			var update = Builders<BookModel>.Update.Set(x => x.ReservedBy, userId.ToString());
-			var result = await _collection.UpdateOneAsync(filter, update);
+			var result = handle == null
+				? await _collection.UpdateOneAsync(filter, update)
+				: await _collection.UpdateOneAsync(handle, filter, update);
 
 			return result.ModifiedCount == 1;
 		}

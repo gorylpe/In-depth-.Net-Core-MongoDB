@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Mongo.Models;
 using Mongo.Reviews;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Mongo
 {
@@ -31,7 +32,7 @@ namespace Mongo
 		Task<List<AuthorAverageOverallOfExpertReviews>>                                  AverageOverallOfExpertReviewsByAuthorAsync();
 		Task<List<AuthorUniqueSetGrades>>                                                UniqueSetOfGradesByAuthorAsync();
 		Task                                                                             UpdateBooksRemoveSimpleReviewsWithOverallLessThan50Async();
-		Task<bool>                                                                       ReserveBookAsync(ObjectId bookId, ObjectId userId);
+		Task<bool>                                                                       ReserveBookAsync(ObjectId bookId, ObjectId userId, IClientSessionHandle handle = null);
 		Task                                                                             RemoveBookReservationAsync(ObjectId bookId);
 	}
 }

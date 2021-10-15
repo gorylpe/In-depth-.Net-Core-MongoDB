@@ -28,10 +28,10 @@ namespace Mongo
 
 			try
 			{
-				var reserved = await _bookRepository.ReserveBookAsync(bookId, userId);
+				var reserved = await _bookRepository.ReserveBookAsync(bookId, userId, session);
 				if (!reserved)
 					return false;
-				var bookAdded = await _userRepository.ReserveBookAsync(userId, bookId, _config.MaxBooksPerUser);
+				var bookAdded = await _userRepository.ReserveBookAsync(userId, bookId, _config.MaxBooksPerUser, session);
 				if (!bookAdded)
 					return false;
 			}

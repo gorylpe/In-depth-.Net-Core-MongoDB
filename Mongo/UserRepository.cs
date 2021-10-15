@@ -42,14 +42,16 @@ namespace Mongo
 			await _collection.DeleteManyAsync(filter);
 		}
 
-		public async Task<bool> ReserveBookAsync(ObjectId userId, ObjectId bookId, int maxBooksPerUser)
+		public async Task<bool> ReserveBookAsync(ObjectId userId, ObjectId bookId, int maxBooksPerUser, IClientSessionHandle handle = null)
 		{
 			var filter = Builders<UserModel>.Filter.Eq(x => x.Id, userId.ToString());
 			filter &= Builders<UserModel>.Filter.SizeLt(x => x.ReservedBooks, maxBooksPerUser);
 
 			var update = Builders<UserModel>.Update.Push(x => x.ReservedBooks, bookId.ToString());
 
-			var result = await _collection.UpdateOneAsync(filter, update);
+			var result = handle == null
+				? await _collection.UpdateOneAsync(filter, update)
+				: await _collection.UpdateOneAsync(handle, filter, update);
 			return result.ModifiedCount == 1;
 		}
 	}
