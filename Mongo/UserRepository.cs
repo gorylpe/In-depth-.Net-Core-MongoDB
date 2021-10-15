@@ -55,11 +55,12 @@ namespace Mongo
 				: await _collection.UpdateOneAsync(handle, filter, update);
 			return result.ModifiedCount == 1;
 		}
-		
+
 		public async Task<bool> ReserveBooksAsync(ObjectId userId, List<ObjectId> booksIds, int maxBooksPerUser, IClientSessionHandle handle)
 		{
 			var filter = Builders<UserModel>.Filter.Eq(x => x.Id, userId.ToString());
-			filter &= Builders<UserModel>.Filter.SizeLte(x => x.ReservedBooks, maxBooksPerUser - booksIds.Count);
+			filter &=
+				$"{{ $where: \"this.{CustomPipelineExtensions.RenderField<UserModel>(x => x.ReservedBooks)}.length <= {maxBooksPerUser - booksIds.Count}\" }}";
 
 			var update = Builders<UserModel>.Update.PushEach(x => x.ReservedBooks, booksIds.Select(x => x.ToString()));
 

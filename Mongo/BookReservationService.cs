@@ -53,10 +53,17 @@ namespace Mongo
 			{
 				var bookAdded = await _userRepository.ReserveBooksAsync(userId, booksIds, _config.MaxBooksPerUser, handle);
 				if (!bookAdded)
+				{
+					await handle.AbortTransactionAsync(token);
 					return false;
+				}
+
 				var reserved = await _bookRepository.ReserveBooksAsync(booksIds, userId, handle);
 				if (!reserved)
+				{
+					await handle.AbortTransactionAsync(token);
 					return false;
+				}
 
 				return true;
 			}, new TransactionOptions(maxCommitTime: TimeSpan.FromSeconds(5)));
